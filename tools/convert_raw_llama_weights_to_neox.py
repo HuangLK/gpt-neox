@@ -275,8 +275,8 @@ def convert_model_pipeline(
     model_state = {
         "dp_world_size": 1,
         "mp_world_size": num_output_shards,
-        "module": {},
-        "optimizer": {},
+        "module": None,
+        "optimizer": None,
         "global_steps": 1,
         "skipped_steps": 1,
         "iteration": 1,
@@ -548,7 +548,7 @@ class Helper:
             )
 
     def save(self, obj, layer_i, rank):
-        torch.save(obj, self.save_path(layer_i=layer_i + 2, rank=rank))
+        torch.save(obj, self.save_path(layer_i=layer_i, rank=rank))
 
     def shard(self, x, dim):
         x_shape = list(x.shape)

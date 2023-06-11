@@ -26,9 +26,31 @@ def get_norm(neox_args):
     elif neox_args.norm == "scalenorm":
         eps = neox_args.scalenorm_epsilon
         norm = ScaleNorm
+    elif neox_args.norm == "hfrmsnorm":
+        eps = neox_args.scalenorm_epsilon
+        norm = HFRMSNorm
     else:
         raise ValueError(f"norm {neox_args.norm} not recognized")
     return norm, eps
+
+
+class HFRMSNorm(torch.nn.Module):
+    def __init__(self, hidden_size, eps=1e-6):
+        super().__init__()
+
+        self.scale = torch.nn.Parameter(torch.ones(hidden_size))
+        self.variance_epsilon = eps
+        self.register_parameter("scale", self.scale)
+
+    def forward(self, hidden_states):
+        variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
+        hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
+
+        # convert into half-precision if necessary
+        if self.scale.dtype in [torch.float16, torch.bfloat16]:
+            hidden_states = hidden_states.to(self.scale.dtype)
+
+        return self.scale * hidden_states
 
 
 class RMSNorm(torch.nn.Module):

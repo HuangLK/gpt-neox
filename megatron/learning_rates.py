@@ -69,7 +69,7 @@ class AnnealingLR(object):
         if self.warmup_iter > 0 and self.num_iters <= self.warmup_iter:
             return float(self.start_lr) * num_iters_ / self.warmup_iter
 
-        num_iters_ = num_iters_ - self.warmup_iter
+        #num_iters_ = num_iters_ - self.warmup_iter
         if self.decay_style == "linear":
             lr = self.start_lr * (self.end_iter - num_iters_) / self.end_iter
         elif self.decay_style == "cosine":
